@@ -1,2 +1,2 @@
 # crrytposystem McEliece
-My course work. Programme language = python
+My course work. Programming language = python
