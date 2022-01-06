@@ -104,11 +104,11 @@ def caclulation_un_g():  # ^G = S*G*P
     return un_G
 
 
-def open_key_func():  # (^G, t)
-    open_key = []
-    open_key.append(to_list(caclulation_un_g()))
-    open_key.append(t)
-    return open_key
+def public_key_func():  # (^G, t)
+    public_key = []
+    public_key.append(to_list(caclulation_un_g()))
+    public_key.append(t)
+    return public_key
 
 
 def received_message_func():  # c` = m*^G + z
@@ -120,16 +120,16 @@ def received_message_func():  # c` = m*^G + z
     return received_message_text
 
 
-def transposed_matrix_func():
+def transposed_matrix_func(privat_key_g):
     I = []
     Q = []
 
-    for i in range(len(G)):
+    for i in range(len(privat_key_g)):
         I_ = []
         Q_ = []
-        for j in range(len(G[i])):
-            x = int(G[i][j])
-            if j <= (len(G) - 1):
+        for j in range(len(privat_key_g[i])):
+            x = int(privat_key_g[i][j])
+            if j <= (len(privat_key_g) - 1):
                 I_.append(x)
             else:
                 Q_.append(x)
@@ -175,7 +175,7 @@ def c_plus_pi(received_message, inverse_random_transposition_matrix):
 
 def correction_syndrome(cp, transposed_matrix):
     syndrome = cp.dot(transposed_matrix)
-    print('syndrome', np.array(to_list(refactor_matrix_or_list(syndrome))))
+    # print('syndrome', np.array(to_list(refactor_matrix_or_list(syndrome))))
     return syndrome
 
 
@@ -183,7 +183,7 @@ def correction_message_func(syndrome, transposed_matrix, cp):
     for i in range(len(transposed_matrix)):
         if str(syndrome) == str(transposed_matrix[i]):
             error_position = i
-            print(f'Ошибка была в {error_position + 1} позиции')
+            # print(f'Ошибка была в {error_position + 1} позиции')
     correction_message = []
     i = 0
     while i < n:
@@ -196,7 +196,7 @@ def correction_message_func(syndrome, transposed_matrix, cp):
         correction_message.append(x)
         i += 1
     correction_message = np.array(correction_message)
-    print('correction_message:', correction_message)
+    # print('correction_message:', correction_message)
     return correction_message
 
 
@@ -216,20 +216,26 @@ def write_message(received_message):
     print('Message is encrypt and send')
 
 
-def write_open_keys():
-    open_key_file = open('open keys.txt', 'w')
-    open_key_file.write(str(open_key_func()))
-    open_key_file.close()
-    print('Open keys are send')
+def write_public_keys():
+    public_key_file = open('open keys.txt', 'a')
+    public_key_file.write(str(public_key_func()))  # тут должна быть переменная, а не функция
+    public_key_file.close()
+    print('Public keys are send')
 
 
-# def write_close_keys():
+def write_privat_keys(random_non_degenerate_matrix, random_transposition_matrix, matrix_g):
+    privat_key_file = open('close keys.txt', 'a')
+    privat_key_file.write(str(random_non_degenerate_matrix))
+    privat_key_file.write(str(random_transposition_matrix))
+    privat_key_file.write(str(matrix_g))
+    privat_key_file.write('-')
+    privat_key_file.close()
+    print('Privat keys are send')
 
 
 def read_message():
     message_file = open('message.txt', 'r')
     string_text = message_file.read().split('][')
-    print(string_text)
     int_text = []
     for i in range(len(string_text)):
         int_symbol = []
@@ -239,17 +245,14 @@ def read_message():
             elif string_text[i][j] == '1':
                 int_symbol.append(int(string_text[i][j]))
         int_text.append(int_symbol)
-    receive_word = np.array(int_text[0])
-    int_text.remove(int_text[0])  ###!!! оставить или удалить?
-    print(int_text)
-    return receive_word
+    print('Message is encrypt and receive')
+    return int_text
 
 
-def read_open_keys():
-    open_key_file = open('open keys.txt', 'r')
-    string_text = open_key_file.read().split('][')  # !!! УТОЧНИТЬ
+def read_public_keys():
+    public_key_file = open('open keys.txt', 'r')
+    string_text = public_key_file.read().split('][')  # !!! УТОЧНИТЬ
     int_text = []
-    print(string_text)
     for i in range(len(string_text)):
         int_symbol = []
         for j in range(len(string_text[i])):
@@ -259,60 +262,75 @@ def read_open_keys():
                 int_symbol.append(int(string_text[i][j]))
             elif string_text[i][j] != ']':
                 t_variable = string_text[i][j + 1]
+        int_symbol.pop()
         int_text.append(int_symbol)
-    int_text = int_text[0]
-    int_text.pop()
-    print(int_text)
+    print('Public keys are receive')
+    return int_text  # ещё вернуть t
+    # print(receive_public_key, t_variable)
+
+
+def read_privat_keys():
+    privat_key_file = open('close keys.txt', 'r')
+    string_text = privat_key_file.read().split('-')
+    string_text.pop()
+    privat_key_file.close()
+    print('Privat keys are receive')
+    return string_text
+
+
+def forming_n_k_matrix(public_key_text):
     column = []
     l = 0
     for i in range(k):
         string = []
         for j in range(n):
-            string.append(int_text[l])
+            string.append(public_key_text[l])
             l += 1
         column.append(string)
-    receive_open_key = np.array(column)
-    # print(receive_open_key, t_variable)
-    return receive_open_key
+    receive_public_key = np.array(column)
+    # print(receive_public_key, 'receive_public_key')
+    return receive_public_key
 
 
-def create_encrypt_procedure():
-    # создание матриц
-    # формировка текста
-    # отправка матриц в алгоритм
-    # запись по файлам
-    pass
+def take_matrix(privat_key):
+    int_symbol = []
+    for i in range(len(privat_key)):
+        if privat_key[i] == '0':
+            int_symbol.append(int(privat_key[i]))
+        elif privat_key[i] == '1':
+            int_symbol.append(int(privat_key[i]))
+    return int_symbol
 
 
-def create_decrypt_procedure():
-    # распаковка файлов
-    message_text = 0
-    open_key_text = 0
-    close_key_text = 0
-    while message_text is not None:
-        message = message_text[0]
-        open_key = open_key_text[0], open_key_text[1]
-        close_key = close_key_text[0], close_key_text[1], close_key_text[2]
-        # decrypt_algorithm(message)
-        message_text.remove(message_text[0])
-        open_key_text.remove(open_key_text[0], open_key_text[1])
-        close_key_text.remove(close_key_text[0], close_key_text[1], close_key_text[2])
-    # формирование общей картины текста
+def forming_matrix(*args):
+    column = []
+    l = 0
+    for i in range(args[1]):
+        string = []
+        for j in range(args[0]):
+            string.append(args[2][l])
+            l += 1
+        column.append(string)
+    receive_public_key = np.array(column)
+    # print(receive_public_key, 'receive key')
+    return receive_public_key
 
 
-# def encrypt_algorithm():
+# def encrypt_algorithm(): - received_message_func()
 #     random_transposition_matrix = random_transposition_matrix_func()  # checking_null_determinate_matrix(1)
 #     random_non_degenerate_matrix = random_non_degenerate_matrix_func()  # checking_null_determinate_matrix(0)
 #     received_message = np.array(to_list(refactor_matrix_or_list(received_message_func())))
 #     # write(received_message)
 
-def decrypt_algorithm():
-    random_transposition_matrix = random_transposition_matrix_func()
-    random_non_degenerate_matrix = random_non_degenerate_matrix_func()
-    inverse_random_transposition_matrix = inverse_matrix_func(random_transposition_matrix)
-    inverse_random_non_degenerate_matrix = inverse_matrix_func(random_non_degenerate_matrix)
-    cp = c_plus_pi(read_message(), inverse_random_transposition_matrix)
-    transposed_matrix = transposed_matrix_func()
+
+def decrypt_algorithm(message_word, privat_key_s, privat_key_p,
+                      privat_key_g):  # принимает 4 аргумента - сообщение и 3 матрицы
+    random_transposition_matrix = privat_key_p  # 1 матрица
+    random_non_degenerate_matrix = privat_key_s  # 2 матрица
+    inverse_random_transposition_matrix = inverse_matrix_func(random_transposition_matrix)  # делает обратную
+    inverse_random_non_degenerate_matrix = inverse_matrix_func(random_non_degenerate_matrix)  # делает обратную
+    cp = c_plus_pi(message_word, inverse_random_transposition_matrix)
+    transposed_matrix = transposed_matrix_func(privat_key_g)  # !!!!!
     syndrome = np.array(to_list(refactor_matrix_or_list(correction_syndrome(cp, transposed_matrix))))
     correction_message = correction_message_func(syndrome, transposed_matrix, cp)
     # print('m^G + z = ', received_message, '- b_ciphred_message_text', '\ncp: ',
@@ -320,23 +338,60 @@ def decrypt_algorithm():
     encrypted(correction_message, inverse_random_non_degenerate_matrix)
 
 
-def mother_function():
+def preparation_encrypt_procedure():
+    # создание матриц
+
     random_transposition_matrix = random_transposition_matrix_func()  # checking_null_determinate_matrix(1)
     random_non_degenerate_matrix = random_non_degenerate_matrix_func()  # checking_null_determinate_matrix(0)
-    inverse_random_transposition_matrix = inverse_matrix_func(random_transposition_matrix)
-    inverse_random_non_degenerate_matrix = inverse_matrix_func(random_non_degenerate_matrix)
+    # print(to_list(random_non_degenerate_matrix))
+    matrix_g = G
+
+    # формировка текста
+
+    # отправка матриц и текста в алгоритм (сам алгоритм) - received_message_func()
     received_message = np.array(to_list(refactor_matrix_or_list(received_message_func())))
-    # write(received_message)
-    # read_open_keys()
-    # read_message()
-    decrypt_algorithm()
-    # cp = c_plus_pi(read_message(), inverse_random_transposition_matrix)
-    # transposed_matrix = transposed_matrix_func()
-    # syndrome = np.array(to_list(refactor_matrix_or_list(correction_syndrome(cp, transposed_matrix))))
-    # correction_message = correction_message_func(syndrome, transposed_matrix, cp)
-    # print('m^G + z = ', received_message, '- b_ciphred_message_text', '\ncp: ',
-    #       cp)  # , '\nsyndrome: ',syndrome)#, '\ntransposed_matrix: \n', transposed_matrix)
-    # encrypted(correction_message, inverse_random_non_degenerate_matrix)
+
+    # запись по файлам
+    write_message(received_message)
+    write_public_keys()
+    write_privat_keys(to_list(random_non_degenerate_matrix), to_list(random_transposition_matrix), to_list(matrix_g))
+
+
+def preparation_decrypt_procedure():
+    # распаковка файлов
+    message_text = read_message()
+    print(len(message_text))
+    public_key_text = read_public_keys()
+    privat_key_text = read_privat_keys()
+    i = 0
+    while i in range(len(message_text)):
+        message_word = np.array(message_text[0])
+        public_key = forming_n_k_matrix(public_key_text[0])
+        print(message_word, 'message_word')#, public_key, 'public_key')
+        privat_key = privat_key_text[0]
+        privat_key = privat_key.split('][')
+        for j in range(3):
+            privat_key_word = take_matrix(privat_key[j])
+            if j == 0:
+                privat_key_s = forming_matrix(k, k, privat_key_word)
+            elif j == 1:
+                privat_key_p = forming_matrix(n, n, privat_key_word)
+            elif j == 2:
+                privat_key_g = forming_matrix(n, k, privat_key_word)
+        decrypt_algorithm(message_word, privat_key_s, privat_key_p, privat_key_g)  # передаёт сообщение и 3 матрицы
+        message_text = np.delete(message_text, 0, axis=0)
+        privat_key_text = np.delete(privat_key_text, 0, axis=0)
+    else:
+        print('')
+
+    # формирование общей картины текста
+
+    # перевод из нулей в слова
+
+
+def mother_function():
+    # preparation_encrypt_procedure()
+    preparation_decrypt_procedure()
 
 
 mother_function()
