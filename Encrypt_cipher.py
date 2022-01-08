@@ -1,4 +1,18 @@
-import numpy as np
+# -*- coding: utf-8 -*-
+
+""" n>k
+G - порождающая матрица (k*n)
+S - случайная невырожденная матрица (k*k)
+P - случайная матрица перестановок (n*n)
+G` - S*G*P (k*n)
+V - кодовое слово
+m - сообщение в виде последовательностей двоичных символов длины k
+z - случайный вектор длины n
+Н^T - транспонированная матрица
+"""
+
+# import numpy as np
+import time
 
 from data_wiki import *
 
@@ -66,8 +80,8 @@ def received_message_func(m):  # c` = m*^G + z
     ciphred_message_text = m.dot(
         caclulation_un_g())  # здесь происходит кодирование сообщение, т.е. взаимодействует сообщение и ^G
     ciphred_message_text = refactor_matrix_or_list(ciphred_message_text)
-    print('Ciphred message text: ', np.array(to_list(ciphred_message_text)))
-    received_message_text = ciphred_message_text + z  # добавляется ошибка
+    # print('Ciphred message text: ', np.array(to_list(ciphred_message_text)))
+    received_message_text = ciphred_message_text + random_error_vector()  # добавляется ошибка
     return received_message_text
 
 
@@ -86,20 +100,20 @@ def encrypted(correction_message, inverse_random_non_degenerate_matrix):
 
 
 def write_message(received_message):
-    message_file = open('message.txt', 'a')  # a - дозапись, w - перезапись
+    message_file = open('Message.txt', 'a')  # a - дозапись, w - перезапись
     message_file.write(str(received_message))
     # message_file.write(str()
     message_file.close()
 
 
 def write_public_keys():
-    public_key_file = open('open keys.txt', 'a')
+    public_key_file = open('Public Keys.txt', 'a')
     public_key_file.write(str(public_key_func()))  # тут должна быть переменная, а не функция
     public_key_file.close()
 
 
 def write_privat_keys(random_non_degenerate_matrix, random_transposition_matrix, matrix_g):
-    privat_key_file = open('close keys.txt', 'a')
+    privat_key_file = open('Privat Keys.txt', 'a')
     privat_key_file.write(str(random_non_degenerate_matrix))
     privat_key_file.write(str(random_transposition_matrix))
     privat_key_file.write(str(matrix_g))
@@ -126,26 +140,48 @@ def preparation_encrypt_procedure(m):
     write_privat_keys(to_list(random_non_degenerate_matrix), to_list(random_transposition_matrix), to_list(matrix_g))
 
 
-def create_abstract_text():
-    f = open('text.txt', 'r')
-    text = f.read()
-    print(text)
-    f.close()
-    text_binary = list(map(lambda x: "{0:b}".format(ord(x)).zfill(8), text))
-    print(text_binary)
-    f = ''
-    for i in range(len(text_binary)):
-        c = []
-        for j in range(len(text_binary[i])):
-            if text_binary[i][j] == '1':
-                f += str(text_binary[i][j])
-            if text_binary[i][j] == '0':
-                f += str(text_binary[i][j])
-    text_binary = f
-    f_binary = open('binary_text.txt', 'w')
-    f_binary.write(text_binary)
-    f_binary.close()
+def create_abstract_text(filename):
+    start_time = time.time()
+    if filename.lower().endswith('.txt'):
+        f = open(filename, 'rb')
+        text = f.read()
+        f.close()
+        f = open('binary_text.txt', 'w')
+        a = "".join(format(i, "08b") for i in text)
+        print(a)
+        f.write(str(a))
+        f.close()
+    else:
+        f = open(filename, 'rb')
+        text = f.read()
+        print(len(text), text)
+        f.close()
+        string_binary = ''
+        for i in range(len(text)):
+            a = int(text[i])
+            binary = bin(a)[2:]
+            if len(binary) % 8 == 0:
+                string_binary += binary
+            else:
+                binary = (8 - (len(binary) % 8)) * '0' + binary
+                string_binary += binary
+        print(len(string_binary), string_binary)
+        f = open('binary_text.txt', 'w')
+        f.write(str(string_binary))
+        f.close()
+        a = string_binary
+
+    clear_file = open('Message.txt', 'w')
+    clear_file.close()
+    clear_file = open('Public Keys.txt', 'w')
+    clear_file.close()
+    clear_file = open('Privat Keys.txt', 'w')
+    clear_file.close()
+
     create_code_word()
+    time_work = " %s seconds" % (time.time() - start_time)
+    a = f'Message:\n{a}\nMessage is encrypt and send\nPublic keys are send\nPrivat keys are send\nRunning time: {time_work}'
+    return a
 
 
 def create_code_word():
@@ -162,9 +198,5 @@ def create_code_word():
         m = np.array(w)
         preparation_encrypt_procedure(m)
         full_text = full_text[4:]
-    print('Message is encrypt and send')
-    print('Public keys are send')
-    print('Privat keys are send')
 
-
-create_abstract_text()
+# create_abstract_text()

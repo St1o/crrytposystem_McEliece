@@ -1,10 +1,23 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
+""" n>k
+G - порождающая матрица (k*n)
+S - случайная невырожденная матрица (k*k)
+P - случайная матрица перестановок (n*n)
+G` - S*G*P (k*n)
+V - кодовое слово
+m - сообщение в виде последовательностей двоичных символов длины k
+z - случайный вектор длины n
+Н^T - транспонированная матрица
+"""
 
-from data_wiki import *
+import numpy as np
+import time
 from numpy import linalg
 
+global n, k
+k = 4
+n = 7
 
 def inverse_matrix_func(*args):  # P^-1 or S^-1
     args = args[0]
@@ -146,7 +159,7 @@ def decrypted(correction_message, inverse_random_non_degenerate_matrix):
 
 
 def read_message():
-    message_file = open('message.txt', 'r')
+    message_file = open('Message.txt', 'r')
     string_text = message_file.read().split('][')
     int_text = []
     for i in range(len(string_text)):
@@ -157,37 +170,46 @@ def read_message():
             elif string_text[i][j] == '1':
                 int_symbol.append(int(string_text[i][j]))
         int_text.append(int_symbol)
-    print('Message is encrypt and receive')
+    if len(int_text) == 1:
+        print('Message is not receive')
+    else:
+        print('Message is receive')
     return int_text
 
 
 def read_public_keys():
-    public_key_file = open('open keys.txt', 'r')
+    public_key_file = open('Public Keys.txt', 'r')
     string_text = public_key_file.read().split('][')  # !!! УТОЧНИТЬ
-    int_text = []
-    for i in range(len(string_text)):
-        int_symbol = []
-        for j in range(len(string_text[i])):
-            if string_text[i][j] == '0':
-                int_symbol.append(int(string_text[i][j]))
-            elif string_text[i][j] == '1':
-                int_symbol.append(int(string_text[i][j]))
-            elif string_text[i][j] != ']':
-                t_variable = string_text[i][j + 1]
-        int_symbol.pop()
-        int_text.append(int_symbol)
-    print('Public keys are receive')
-    return int_text  # ещё вернуть t
+    if len(string_text) == 1:
+        print('Public keys are not receive')
+    else:
+        print('Public keys are receive')
+        int_text = []
+        for i in range(len(string_text)):
+            int_symbol = []
+            for j in range(len(string_text[i])):
+                if string_text[i][j] == '0':
+                    int_symbol.append(int(string_text[i][j]))
+                elif string_text[i][j] == '1':
+                    int_symbol.append(int(string_text[i][j]))
+                elif string_text[i][j] != ']':
+                    t_variable = string_text[i][j + 1]
+            int_symbol.pop()
+            int_text.append(int_symbol)
+        return int_text  # ещё вернуть t
     # print(receive_public_key, t_variable)
 
 
 def read_privat_keys():
-    privat_key_file = open('close keys.txt', 'r')
+    privat_key_file = open('Privat Keys.txt', 'r')
     string_text = privat_key_file.read().split('-')
-    string_text.pop()
-    privat_key_file.close()
-    print('Privat keys are receive')
-    return string_text
+    if len(string_text) == 1:
+        print('Privat keys are not receive')
+    else:
+        print('Privat keys are receive')
+        string_text.pop()
+        privat_key_file.close()
+        return string_text
 
 
 def forming_n_k_matrix(public_key_text):
@@ -244,17 +266,24 @@ def decrypt_algorithm(message_word, privat_key_s, privat_key_p,
     return real_word
 
 
-def preparation_decrypt_procedure(encoding='utf-8', errors='surrogatepass'):
+def preparation_decrypt_procedure():
+    start_time = time.time()
+    encoding = 'utf-8'
+    errors = 'surrogatepass'
     # распаковка файлов
-    message_text = read_message()
-    # print(len(message_text))
-    public_key_text = read_public_keys()
-    privat_key_text = read_privat_keys()
+    try:
+        message_text = read_message()
+        public_key_text = read_public_keys()
+        privat_key_text = read_privat_keys()
+    except:
+        print('Message or open keys or close doesn`t exist')
+        return
     i = 0
+    public_key = forming_n_k_matrix(public_key_text[0])
     real_text_np = []
     while i in range(len(message_text)):
         message_word = np.array(message_text[0])
-        public_key = forming_n_k_matrix(public_key_text[0])
+        # public_key = forming_n_k_matrix(public_key_text[0])
         # print(message_word, 'message_word')  # , public_key, 'public_key')
         privat_key = privat_key_text[0]
         privat_key = privat_key.split('][')
@@ -266,10 +295,13 @@ def preparation_decrypt_procedure(encoding='utf-8', errors='surrogatepass'):
                 privat_key_p = forming_matrix(n, n, privat_key_word)
             elif j == 2:
                 privat_key_g = forming_matrix(n, k, privat_key_word)
-        real_word = decrypt_algorithm(message_word, privat_key_s, privat_key_p, privat_key_g)  # передаёт сообщение и 3 матрицы
+        real_word = decrypt_algorithm(message_word, privat_key_s, privat_key_p,
+                                      privat_key_g)  # передаёт сообщение и 3 матрицы
         real_text_np.append(real_word)
         message_text = np.delete(message_text, 0, axis=0)
         privat_key_text = np.delete(privat_key_text, 0, axis=0)
+
+    # формирование общей картины текста
     real_text_array = str(to_list(refactor_matrix_or_list(real_text_np)))
     real_text = ''
     for i in range(len(real_text_array)):
@@ -277,20 +309,24 @@ def preparation_decrypt_procedure(encoding='utf-8', errors='surrogatepass'):
             real_text += str((real_text_array[i]))
         elif real_text_array[i] == '0':
             real_text += str((real_text_array[i]))
-
-    # if (7 - (len(real_text) % 7)) != 0:
-    #     x = 7 - (len(real_text) % 7)
-    #     real_text = real_text[:-x]
-    print('before', real_text)
-    o = int(real_text, 2)
-    x = o.to_bytes((o.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
-    # real_text = ''.join(map(lambda x: chr(int(x, 2)), real_text))
-    # real_text = o.to_bytes((n.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
-    print('after', x)
-
-    # формирование общей картины текста
+    print('Message is decode.')
+    print('Message before decoding: ', real_text)
 
     # перевод из нулей в слова
+    try:
+        o = int(real_text, 2)
+        ended_text = o.to_bytes((o.bit_length() + 7) // 8, 'big').decode(encoding, errors) or '\0'
+        opinion = 'Message after decoding:\n'
+    except:
+        i = 0
+        ended_text = ''
+        while i < len(real_text):
+            ended_text += real_text[i:(i + 8)]
+            i += 8
+        opinion = 'Binary format. Convert data if you want to read. Data:\n'
+    time_work = "\nRunning time: %s seconds" % (time.time() - start_time)
+    result = opinion + ended_text + time_work
+    print(result)
+    return result
 
-
-preparation_decrypt_procedure()
+# preparation_decrypt_procedure()
