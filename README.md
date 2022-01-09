@@ -18,7 +18,7 @@ P.S. More details - [Wiki](https://en.wikipedia.org/wiki/McEliece_cryptosystem)
 
 #### *Notes:* 
 
-1. You can encrypt any file (photo, document, etc.)
+1. You can encrypt any file (text, photo, document, etc.)
 2. If the file is larger than 20kb, you will have to wait. Not touch window.
 
 If you have any questions, write [here](https://twitter.com/Aleksey_Grida)
