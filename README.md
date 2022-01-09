@@ -9,15 +9,16 @@ an error is randomly added. On the opposite side, the algorithm is decrypted. Mo
 
 ## Run
 
-*Set requirements.
-*To start the program, you need to run **"McElise_UI.py"**.
-*To decrypt a file, just go to the "decrypt" tab and click on the button.
+* Set requirements.
+* To start the program, you need to run **"McElise_UI.py"**.
+* For encryption, in the window that appears, go to the "encrypt" tab. Click on the button and select the file.
+* To decrypt a file, just go to the "decrypt" tab and click on the button.
 
-*Notes:* 
+#### *Notes:* 
 
 1. You can encrypt any file (photo, document, etc.)
 2. If the file is larger than 20kb, you will have to wait. Not touch window.
 
 If you have any questions, write [here](https://twitter.com/Aleksey_Grida)
 
-### Programming language: **python**
+#### Programming language: **python**
