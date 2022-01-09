@@ -5,7 +5,9 @@
 The ***McEliece cryptosystem*** is an asymmetric encryption algorithm that allows you to work with linear (***n***, ***k***) codes that correct ***t*** errors.
 
 In this work, the message is divided into 4 bits (those *k=4*), then encrypted, and a new 7-bit (those *n=7*) message is obtained. The message is sent over the pipe and 
-an error is randomly added. On the opposite side, the algorithm is decrypted. More details - [Wiki](https://en.wikipedia.org/wiki/McEliece_cryptosystem)
+an error is randomly added. On the opposite side, the algorithm is decrypted. 
+
+P.S. More details - [Wiki](https://en.wikipedia.org/wiki/McEliece_cryptosystem)
 
 ## Run
 
