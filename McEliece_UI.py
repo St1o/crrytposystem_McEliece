@@ -9,8 +9,8 @@
 
 
 # from Decrypt_cipher import *
-from Encrypt_cipher import *
-from Decrypt_cipher import *
+from Encrypt import *
+from Decrypt import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
 
@@ -149,7 +149,6 @@ class Ui_MainWindow(object):
         def encrypt(self):
             filename = QFileDialog.getOpenFileName()[0]
             self.plainTextEdit.appendPlainText(create_abstract_text(filename))
-
 
         def decrypt(self):
             self.plainTextEdit_2.appendPlainText(preparation_decrypt_procedure())
