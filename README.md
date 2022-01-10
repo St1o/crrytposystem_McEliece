@@ -12,7 +12,7 @@ P.S. More details - [Wiki](https://en.wikipedia.org/wiki/McEliece_cryptosystem)
 ## Run
 
 * Set requirements.
-* To start the program, you need to run **"McElise_UI.py"**.
+* To start the program, you need to run **"McElise_UI.py"** or open **"McElise_UI.exe"**.
 * For encryption, in the window that appears, go to the "encrypt" tab. Click on the button and select the file.
 * To decrypt a file, just go to the "decrypt" tab and click on the button.
 
