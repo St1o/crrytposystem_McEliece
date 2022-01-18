@@ -13,8 +13,6 @@ z - случайный вектор длины n
 
 import time
 
-import numpy as np
-
 from Data import *
 from Handshake import answer
 from Programms_interfaces import refactor_matrix_or_list, to_list, forming_matrix
@@ -22,7 +20,6 @@ from Programms_interfaces import refactor_matrix_or_list, to_list, forming_matri
 
 def question():
     do_u_wanna_communicate = answer()
-    # matrix_un_g = do_u_wanna_communicate[0]
     print('The connection with the recipient is established')
 
 
