@@ -163,7 +163,6 @@ def read_privat_keys():
         print('Privat keys are not receive')
     else:
         print('Privat keys are receive')
-        # string_text.pop()
         privat_key_file.close()
 
         return string_text
@@ -171,14 +170,12 @@ def read_privat_keys():
 
 # фильтрует символы и добавляет цифры
 def take_matrix(privat_key):
-    # print('-', privat_key, 'privat_key')
     int_symbol = []
     for i in range(len(privat_key)):
         if privat_key[i] == '0':
             int_symbol.append(int(privat_key[i]))
         elif privat_key[i] == '1':
             int_symbol.append(int(privat_key[i]))
-    # print(int_symbol, 'int_symbol')
     return int_symbol
 
 
@@ -207,13 +204,6 @@ def preparation_decrypt_procedure():
     message_text = read_message()
     privat_key_text = read_privat_keys()
 
-    # try:
-    #     message_text = read_message()
-    #     public_key_text = read_public_keys()
-    #     privat_key_text = read_privat_keys()
-    # except:
-    #     print('Message or open keys or close doesn`t exist')
-    #     return
     i = 0
     real_text_np = []
     while i in range(len(message_text)):
@@ -222,7 +212,6 @@ def preparation_decrypt_procedure():
         privat_key = privat_key.split('][')
         for j in range(3):
             privat_key_word = take_matrix(privat_key[j])
-            # print(privat_key_word, 'privat_key_word')
             if j == 0:
                 privat_key_s = forming_matrix(k, k, privat_key_word)
             elif j == 1:
