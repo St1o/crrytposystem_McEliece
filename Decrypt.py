@@ -249,7 +249,7 @@ def preparation_decrypt_procedure():
     time_work = "\nRunning time: %s seconds" % (time.time() - start_time)
     result = opinion + ended_text + time_work
     print(result)
-    print('--------------')
+    print('---------------')
 
     return result
 
