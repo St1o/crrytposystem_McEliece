@@ -11,13 +11,10 @@ z - случайный вектор длины n
 Н^T - транспонированная матрица
 """
 
-import numpy as np
 import time
 from numpy import linalg
-
-global n, k
-k = 4
-n = 7
+from Data import *
+from Programms_interfaces import refactor_matrix_or_list, to_list, forming_matrix
 
 
 # принимает матрицу и делает её обратную
@@ -27,55 +24,6 @@ def inverse_matrix_func(*args):
     inverse_matrix = refactor_matrix_or_list(inverse_matrix)
 
     return inverse_matrix
-
-
-# превращает матрицу или столбец десятичной СС в двоичную СС
-def refactor_matrix_or_list(*args):
-    value = args[0]
-    updated_matrix_or_list = []
-
-    if type(value[0]) == np.ndarray:  # для матриц
-        for i in range(len(value)):
-            line_value = []
-            for j in range(len(value[i])):
-                int_value = value[i][j].astype(int)
-                if int_value == 0:
-                    line_value.append(int_value)
-                elif int_value % 2 == 0:
-                    int_value = 0
-                    line_value.append(int_value)
-                else:
-                    int_value = 1
-                    line_value.append(int_value)
-            updated_matrix_or_list.append(line_value)
-
-        return np.array(updated_matrix_or_list)
-
-    elif type(value[0]) == np.int32:  # для столбцов
-        for i in range(len(value)):
-            line_value = []
-            if value[i] == 0:
-                line_value.append(value[i])
-            elif value[i] % 2 == 0:
-                value[i] = 0
-                line_value.append(value[i])
-            else:
-                value[i] = 1
-                line_value.append(value[i])
-            updated_matrix_or_list.append(line_value)
-
-        return np.array(updated_matrix_or_list)
-
-
-# превращает матрицу n*1 в матрицу 1*n (столбец в строку)
-def to_list(*args):
-    value = args[0]
-    updated_list = []
-    for i in range(len(value)):
-        for j in range(len(value[i])):
-            updated_list.append(value[i][j])
-
-    return updated_list
 
 
 # создаёт транспонированную матрицу H для матрицы G
@@ -169,18 +117,34 @@ def decrypted(correction_message, inverse_random_non_degenerate_matrix):
 
 
 # чтение битового сообщения из файла
-def read_message():
-    message_file = open('Message.txt', 'r')
-    string_text = message_file.read().split('][')  # разбиение слов для каждой комбинации
+def read_message():  # я думал, это невозможно. потому что когда видел новый байтовый вывод, то офигевал. я не знал, что такое вывод может быть
+    message_file = open('Message.txt', 'rb')
+    byte_text = message_file.read()
+    message_file.close()
+    number_text = int.from_bytes(byte_text, byteorder="big")
+    number_text = bin(number_text)
+    number_text = str(number_text)[2:]
+    number_of_bytes = len(byte_text)
+    if len(number_text) % (8 * number_of_bytes) != 0:
+        number_text = ((8 * number_of_bytes) - (len(number_text) % (8 * number_of_bytes))) * '0' + number_text
+    print(len(number_text), number_text)
+    new_int_text = ''
+    for i in range(len(number_text)):
+        if i != 0:
+            if (i + 1) % 8 != 0:
+                new_int_text = new_int_text + number_text[i]
+        else:
+            new_int_text = new_int_text + number_text[i]
     int_text = []
-    for i in range(len(string_text)):
-        int_symbol = []
-        for j in range(len(string_text[i])):
-            if string_text[i][j] == '0':
-                int_symbol.append(int(string_text[i][j]))
-            elif string_text[i][j] == '1':
-                int_symbol.append(int(string_text[i][j]))
-        int_text.append(int_symbol)
+    k = 0
+    range_i = int(len(new_int_text) / 7)
+    for i in range(range_i):
+        row = []
+        for j in range(n):
+            row.append(int(new_int_text[k]))
+            k += 1
+        int_text.append(row)
+    print(int_text)
 
     if len(int_text) == 1:
         print('Message is not receive')
@@ -190,42 +154,16 @@ def read_message():
     return int_text
 
 
-# чтение битового публичного ключа из файла
-def read_public_keys():
-    public_key_file = open('Public Keys.txt', 'r')
-    string_text = public_key_file.read().split('][')
-
-    if len(string_text) == 1:
-        print('Public keys are not receive')
-    else:
-        print('Public keys are receive')
-        int_text = []
-        for i in range(len(string_text)):
-            int_symbol = []
-            for j in range(len(string_text[i])):
-                if string_text[i][j] == '0':
-                    int_symbol.append(int(string_text[i][j]))
-                elif string_text[i][j] == '1':
-                    int_symbol.append(int(string_text[i][j]))
-                elif string_text[i][j] != ']':
-                    pass
-                    # t_variable = string_text[i][j + 1] - кол-во ошибок
-            int_symbol.pop()
-            int_text.append(int_symbol)
-
-        return int_text
-
-
 # чтение битового приватного ключа из файла
 def read_privat_keys():
     privat_key_file = open('Privat Keys.txt', 'r')
-    string_text = privat_key_file.read().split('-')
+    string_text = privat_key_file.read()#.split('-')
 
     if len(string_text) == 1:
         print('Privat keys are not receive')
     else:
         print('Privat keys are receive')
-        string_text.pop()
+        # string_text.pop()
         privat_key_file.close()
 
         return string_text
@@ -233,30 +171,15 @@ def read_privat_keys():
 
 # фильтрует символы и добавляет цифры
 def take_matrix(privat_key):
-    print('-', privat_key, 'privat_key')
+    # print('-', privat_key, 'privat_key')
     int_symbol = []
     for i in range(len(privat_key)):
         if privat_key[i] == '0':
             int_symbol.append(int(privat_key[i]))
         elif privat_key[i] == '1':
             int_symbol.append(int(privat_key[i]))
-    print(int_symbol, 'int_symbol')
+    # print(int_symbol, 'int_symbol')
     return int_symbol
-
-
-# создание матриц s,p,g с передаваемыми значениями
-def forming_matrix(*args):
-    column = []
-    l = 0
-    for i in range(args[1]):
-        string = []
-        for j in range(args[0]):
-            string.append(args[2][l])
-            l += 1
-        column.append(string)
-    receive_public_key = np.array(column)
-
-    return receive_public_key
 
 
 # алгоритм декодирования по Wiki через синдром
@@ -281,21 +204,25 @@ def preparation_decrypt_procedure():
     errors = 'surrogatepass'
 
     # распаковка файлов
-    try:
-        message_text = read_message()
-        public_key_text = read_public_keys()
-        privat_key_text = read_privat_keys()
-    except:
-        print('Message or open keys or close doesn`t exist')
-        return
+    message_text = read_message()
+    privat_key_text = read_privat_keys()
+
+    # try:
+    #     message_text = read_message()
+    #     public_key_text = read_public_keys()
+    #     privat_key_text = read_privat_keys()
+    # except:
+    #     print('Message or open keys or close doesn`t exist')
+    #     return
     i = 0
     real_text_np = []
     while i in range(len(message_text)):
         message_word = np.array(message_text[0])
-        privat_key = privat_key_text[0]
+        privat_key = privat_key_text
         privat_key = privat_key.split('][')
         for j in range(3):
             privat_key_word = take_matrix(privat_key[j])
+            # print(privat_key_word, 'privat_key_word')
             if j == 0:
                 privat_key_s = forming_matrix(k, k, privat_key_word)
             elif j == 1:
@@ -304,10 +231,8 @@ def preparation_decrypt_procedure():
                 privat_key_g = forming_matrix(n, k, privat_key_word)
         real_word = decrypt_algorithm(message_word, privat_key_s, privat_key_p,
                                       privat_key_g)  # передаёт сообщение и 3 матрицы
-        print(real_word)
         real_text_np.append(real_word)
         message_text = np.delete(message_text, 0, axis=0)
-        privat_key_text = np.delete(privat_key_text, 0, axis=0)
 
     # формирование общей картины текста
     real_text_array = str(to_list(refactor_matrix_or_list(real_text_np)))
