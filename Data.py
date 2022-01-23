@@ -1,9 +1,6 @@
 import numpy as np
 import random
 
-# import traceback
-# traceback.print_stack()
-
 global k, n, t, G
 k = 4
 n = 7
