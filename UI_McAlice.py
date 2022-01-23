@@ -4,6 +4,7 @@ from Encrypt import *
 from Decrypt import *
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog
+from Handshake import answer
 import os
 
 
@@ -102,6 +103,10 @@ class Ui_MainWindow(object):
         self.label_6.setObjectName("label_6")
         self.pushButton_2 = QtWidgets.QPushButton(self.tab_2)
         self.pushButton_2.setGeometry(QtCore.QRect(100, 70, 140, 50))
+        self.pushButton_5 = QtWidgets.QPushButton(self.tab_1)
+        self.pushButton_5.setGeometry(QtCore.QRect(252, 70, 180, 50))
+        self.pushButton_5.setFont(font)
+        self.pushButton_5.setObjectName("pushButton_5")
         font = QtGui.QFont()
         font.setFamily("MS Serif")
         font.setPointSize(16)
@@ -178,12 +183,18 @@ class Ui_MainWindow(object):
             except:
                 pass
 
+        def create_keys(self):
+            answer()
+            self.plainTextEdit.appendPlainText('Public and privat keys are created')
+
+
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(1)
         self.pushButton.clicked.connect(lambda: encrypt(self))
         self.pushButton_2.clicked.connect(lambda: decrypt(self))
         self.pushButton_3.clicked.connect(lambda: choose_directory(self))
         self.pushButton_4.clicked.connect(lambda: choose_directory(self))
+        self.pushButton_5.clicked.connect(lambda: create_keys(self))
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -191,6 +202,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "McEliece cryptosystem"))
         self.label_5.setText(_translate("MainWindow", "Open file and encrypt"))
         self.pushButton.setText(_translate("MainWindow", "Encrypt"))
+        self.pushButton_5.setText(_translate("MainWindow", "Create Keys"))
         self.label_9.setText(_translate("MainWindow", "Choose directory"))
         self.pushButton_4.setText(_translate("MainWindow", "Path"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), _translate("MainWindow", "SENDER"))
