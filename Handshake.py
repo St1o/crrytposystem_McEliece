@@ -44,10 +44,10 @@ def answer():  # создание матрицы ^G = S*G*P
 
     def to_byte_string(*args):
         filename = args[1]
-        args = args[0]                           # превращает
-        line_of_bits = ''                        # в
-        for i in range(len(args)):               # строку
-            for j in range(len(args[i])):        #
+        args = args[0]  # превращает
+        line_of_bits = ''  # в
+        for i in range(len(args)):  # строку
+            for j in range(len(args[i])):  #
                 line_of_bits += str(args[i][j])  #
         file = open(filename, 'ab')
         new_line_of_bits = ''
@@ -67,21 +67,24 @@ def answer():  # создание матрицы ^G = S*G*P
         file.close()
 
     def write_public_keys():  # отправка публичного ключа в файл
-        file = open('Public Keys.txt', 'wb')
-        file.close()
         public_key = to_matrix(public_key_func()[0])
         filename = 'Public Keys.txt'
+        # file = open(filename, 'w')
         to_byte_string(public_key, filename)
 
     def write_privat_keys(matrix_s, matrix_p, matrix_g):  # отправка приватного ключа в файл
+        # privat_key_file = open('Privat Keys.txt', 'w')
+        # privat_key_file.close()
         privat_key_file = open('Privat Keys.txt', 'a')
         privat_key_file.write(str(matrix_s))
         privat_key_file.write(str(matrix_p))
         privat_key_file.write(str(matrix_g))
+        privat_key_file.close()
 
     write_public_keys()
     write_privat_keys(matrix_s, matrix_p, matrix_g)
+    return
 
-    return un_g, matrix_s, matrix_p, matrix_g
+    # return un_g, matrix_s, matrix_p, matrix_g
 
 # answer()
