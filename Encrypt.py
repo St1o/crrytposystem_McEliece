@@ -83,12 +83,12 @@ def preparation_encrypt_procedure(m):
 def create_abstract_text(filename):  # старт программы
     start_time = time.time()
 
-    filenames = ['Message.txt', 'Public Keys.txt', 'Privat Keys.txt']  # очистка старых файлов перед записью
-    for i in range(len(filenames)):
-        clear_file = open(filenames[i], 'w')
-        clear_file.close()
+    # filenames = ['Message.txt', 'Public Keys.txt', 'Privat Keys.txt']  # очистка старых файлов перед записью
+    # for i in range(len(filenames)):
+    #     clear_file = open(filenames[i], 'w')
+    #     clear_file.close()
 
-    question()  # псевдо установка соединения
+    # question()  # псевдо установка соединения
 
     file = open(filename, 'rb')
     text = file.read()
